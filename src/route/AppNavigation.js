@@ -8,7 +8,7 @@ import Receipt from '../screens/Payment/Receipt';
 
 const BottomNavigation = createBottomTabNavigator(
 	{
-		Dummy: Receipt,
+		Dummy: Gateway,
 	},
 	{
         

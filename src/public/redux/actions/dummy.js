@@ -10,3 +10,11 @@ export const fetchDummy = () =>{
         payload: axios.get(link)
     }
 }
+
+export const transaction = () =>{
+	let link = `https://my.ipaymu.com/api/getbniva`
+	return {
+		type: 'TRANSACTION',
+		payload: axios.post(link)
+	}
+}

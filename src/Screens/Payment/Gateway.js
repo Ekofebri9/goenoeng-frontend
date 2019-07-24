@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, TextInput, SafeAreaView, StatusBar, TouchableOpacity, Picker, Dimensions } from 'react-native';
+import { postTransaction } from '../../public/redux/actions/transaction';
 
 export default class Gateway extends Component {
 	state = {
-		dummy: [
+		bank: [
 			{
 				id: 1,
 				name: 'BRI'
@@ -24,9 +25,15 @@ export default class Gateway extends Component {
 				name: 'CIMB'
 			}
 		],
+		key: '8A764683-589B-4DE6-9A4F-B1D3322575DC',
 		norek: '',
+		price: '',
 		payment: null,
 		password: '',
+	}
+
+	transaction = () => {
+		this.props.dispatch(postTransaction({}))
 	}
 
 	render() {
@@ -34,9 +41,6 @@ export default class Gateway extends Component {
 			<SafeAreaView style={styles.container}>
 				<View style={[styles.container, {width: '100%'}]}>
 					<StatusBar backgroundColor="transparent" barStyle="dark-content" />
-					<View>
-
-					</View>
 					<View style={{padding: 20, alignItems: 'center'}}>
                         <Text style={[styles.text, {width: Dimensions.get('window').width * 0.8}]}>Metode Pembayaran</Text>
                         <Picker 
@@ -45,7 +49,7 @@ export default class Gateway extends Component {
 							style={{height: 50, width: Dimensions.get('window').width * 0.8}}
 							onValueChange={(item) => this.setState({payment: item})}>
                         		<Picker.Item style={{width: 300}} label='Pilih' value={null} />
-                    			{this.state.dummy.map((payment) =>
+                    			{this.state.bank.map((payment) =>
 									<Picker.Item label={payment.name} value={payment.name} />
 								)}
 						</Picker>

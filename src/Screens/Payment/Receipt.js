@@ -5,6 +5,7 @@ export default class Receipt extends Component {
 	state = {
 		price: '100000',
 		norek: '0123456789123456',
+		bank : 'BRI',
 		transactionCode: ['D','X','3','8','2','0','0','1','6','6','9']
 	}
 
