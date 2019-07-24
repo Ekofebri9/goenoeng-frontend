@@ -5,6 +5,8 @@ import Carousel from 'react-native-snap-carousel'
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Thumbnail, Footer, FooterTab } from 'native-base';
 import axios from 'axios'
 import NumberFormat from 'react-number-format';
+import Users from './Users'
+import firebase from 'firebase'
 
 const { height, width } = Dimensions.get('window')
 
@@ -75,7 +77,8 @@ export default class MountainDetail extends Component {
                     ]
                 },
             ],
-            userId: 'user',
+            userId: Users.id,
+            partner: [],
             partnerId: 'user',
             partnerName: 'Gunung'
         }
@@ -105,22 +108,51 @@ export default class MountainDetail extends Component {
             this.carousel._snapToItem(this.state.activeIndex + 1) : this.carousel._snapToItem(0)
     }
 
-    componentDidMount() {
+    componentDidMount = async() => {
         // let mountId = navigation.getParam("mountainId")
-        axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
-        const AuthStr = 'x-app-name '.concat("menung982998372771"); 
-        axios.get(`https://menung.herokuapp.com/mountains/5d3642762084e22404f9f2d2`, { headers: { 
-            Authorization: AuthStr
-            }})
+        // axios.defaults.headers.get['Content-Type'] = 'application/x-www-form-urlencoded';
+        // const AuthStr = 'x-app-name '.concat("menung982998372771");
+
+        axios.get(`https://menung.herokuapp.com/mountains/5d3642762084e22404f9f2d2`, {
+            headers: {
+                'x-app-name': 'menung982998372771'
+            }
+        })
             .then((response) => { //use arrow to get setState on this call without any extra binding or placeholder variable
-                console.warn(response.data.data);
+                // console.warn(response.data.data);
                 this.setState({
                     mountainData: response.data.data,
                 })
             })
+            // .then( async ()=>{
             .catch((error) => {
                 console.warn(error)
             })
+            await firebase.database().ref('users/').on('child_added', (value) => {
+                let person = value.val()
+                // console.warn('masuk', value.val());
+                person.userId = value.key
+                person.manage = value.val().manage
+                // console.warn('masuk', value.val().manage);
+                if (person.userId === Users.id) {
+                    Users.name = person.name
+                    Users.email = person.email
+                    Users.status = person.status
+                }
+                else {
+                    // console.warn('id', this.state.mountainData._id)
+                    // console.warn('person',person.manage)
+                    if (person.manage === this.state.mountainData._id) {
+                        // console.warn('masuk', person.name);
+                        this.setState((prevState) => {
+                            return {
+                                partner: [...prevState.partner, person]
+                            }
+                        })
+                    }
+                }
+            })
+            // console.warn('nama', this.state.partner);
     }
 
     // fetchMountain = async () => {
@@ -135,7 +167,21 @@ export default class MountainDetail extends Component {
     //         });
     // }
 
+    _logOut = async () => {
+        await firebase.database().ref('users/' + Users.id).update({
+            status: 'offline'
+        })
+        await AsyncStorage.clear();
+        Users.email = null
+        Users.name = null
+        Users.id = null
+        Users.status = null
+        Users.role = null
+        this.props.navigation.navigate('Auth');
+    }
+
     render() {
+        console.warn('partner', this.state.partner[0])
         return (
             <View style={{ flex: 1 }}>
                 <Text style={{ textAlign: 'center', padding: 10, fontWeight: 'bold', fontSize: 20, color: 'white', backgroundColor: '#34c759' }}>
@@ -164,15 +210,16 @@ export default class MountainDetail extends Component {
                         <View style={{ flex: 2, flexDirection: 'row' }}>
                             <Text style={{ fontSize: 16, color: '#34c759', fontWeight: 'bold' }}>Detail</Text>
                             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <TouchableOpacity 
-                                onPress={()=> this.props.navigation.navigate('Chat',
-                                {
-                                    name : this.state.partnerName,
-                                    userId : this.state.partnerId,
-                                })}>
+                                <TouchableOpacity
+                                    onPress={() => this.props.navigation.navigate('Chat',
+                                        {
+                                            name: this.state.partner[0].name,
+                                            userId: this.state.partner[0].userId,
+                                        })}>
                                     <FontAwesome style={{ fontSize: 20, color: '#34c759' }} name="wechat" />
                                 </TouchableOpacity>
-                                <TouchableOpacity style={{ marginLeft: '5%' }}>
+                                <TouchableOpacity onPress={this._logOut}
+                                    style={{ marginLeft: '5%' }}>
                                     <FontAwesome style={{ fontSize: 20, color: '#34c759' }} name="map-o" />
                                 </TouchableOpacity>
                             </View>
@@ -242,6 +289,7 @@ export default class MountainDetail extends Component {
                                 <Button
                                     onPress={() => this.props.navigation.navigate('BookingMountain', {
                                         userId: this.state.userId,
+                                        userName: Users.name,
                                         mountainId: this.state.mountainData._id,
                                         mountainPrice: this.state.mountainData.price
                                     })}

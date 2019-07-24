@@ -1,9 +1,10 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 // import firebase from 'firebase';
-import { TouchableOpacity, Image } from 'react-native';
+import { TouchableOpacity, Image,AsyncStorage } from 'react-native';
 import { View, Text } from 'native-base';
-// import User from './User'
+import Users from './Users'
+import firebase from 'firebase'
 
 export default class Chat extends React.Component {
     constructor(props) {
@@ -60,50 +61,49 @@ export default class Chat extends React.Component {
     //     }
     // }
 
-    // componentDidMount = async () => {
-    //     this.setState({
-    //         myUid: User.id,
-    //         myName: User.name,
-    //         myAvatar: User.avatar
-    //     })
+    componentDidMount = async () => {
+        this.setState({
+            myUid: Users.id,
+            myName: Users.name,
+            myAvatar: 'Users.avatar'
+        })
 
-    //     await firebase.database().ref('messages/').child(User.id).child(this.state.uid).on('child_added', (val) => {
-    //         this.setState((prevState) => {
-    //             return {
-    //                 messagesList: GiftedChat.append(prevState.messagesList, val.val())
-    //             }
-    //         })
-    //     })
-    // }
+        await firebase.database().ref('messages/').child(Users.id).child(this.state.uid).on('child_added', (val) => {
+            this.setState((prevState) => {
+                return {
+                    messagesList: GiftedChat.append(prevState.messagesList, val.val())
+                }
+            })
+        })
+    }
 
+    // sendMessage = async () => {}
 
-    sendMessage = async () => {}
+    sendMessage = async () => {
+        if (this.state.text.length > 0) {
+            let msgId = firebase.database().ref('messages').child(this.state.myUid).child(this.state.uid).push().key;
+            let updates = {};
+            let message = {
+                _id: msgId,
+                text: this.state.text,
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                user: {
+                    _id: this.state.myUid,
+                    name: this.state.myName,
+                    avatar: this.state.myAvatar
+                },
+            }
+            updates["messages/" + this.state.myUid + '/' + this.state.uid + '/' + msgId] = message;
+            updates["messages/" + this.state.uid + '/' + this.state.myUid + '/' + msgId] = message;
+            firebase.database().ref().update(updates);
+            this.setState({ text: '' })
 
-    // sendMessage = async () => {
-    //     if (this.state.text.length > 0) {
-    //         let msgId = firebase.database().ref('messages').child(this.state.myUid).child(this.state.uid).push().key;
-    //         let updates = {};
-    //         let message = {
-    //             _id: msgId,
-    //             text: this.state.text,
-    //             createdAt: firebase.database.ServerValue.TIMESTAMP,
-    //             user: {
-    //                 _id: this.state.myUid,
-    //                 name: this.state.myName,
-    //                 avatar: this.state.myAvatar
-    //             },
-    //         }
-    //         updates["messages/" + this.state.myUid + '/' + this.state.uid + '/' + msgId] = message;
-    //         updates["messages/" + this.state.uid + '/' + this.state.myUid + '/' + msgId] = message;
-    //         firebase.database().ref().update(updates);
-    //         this.setState({ text: '' })
+        }
+        else {
+            alert('Please type a message first')
+        }
 
-    //     }
-    //     else {
-    //         alert('Please type a message first')
-    //     }
-
-    // }
+    }
 
     render() {
         return (
