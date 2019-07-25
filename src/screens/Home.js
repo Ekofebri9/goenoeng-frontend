@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, Text, View, Alert, BackHandler} from 'react-native';
+import {Platform, Text, View} from 'react-native';
 import styles from '../Assets/Style';
 import Carousel from '../components/Carousel'
 import ShopSectionList from '../components/ShopSection'

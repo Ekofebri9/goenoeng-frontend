@@ -2,8 +2,20 @@ import React, { Component } from 'react';
 import { Platform, Text, View, TextInput, ImageBackground, TouchableOpacity } from 'react-native';
 import styles from '../Assets/Style'
 import ProductList from '../components/ProductList'
+import {connect} from 'react-redux'
+import {fetchProduct} from '../public/redux/actions/store_product'
 
-export default class Mountain extends Component {
+class ManageProduct extends Component {
+    constructor(props){
+        super(props)
+    }
+    componentDidMount(){
+
+    }
+    addProduct = () => {
+        const {navigation} = this.props
+        navigation.navigate('AddProduct')
+    }
     render() {
         return (
             <View style={styles.container}>
@@ -22,11 +34,18 @@ export default class Mountain extends Component {
                     </View>
                 </View>
                 <ProductList />
-                <TouchableOpacity style={[styles.button, { alignSelf: 'center', width: 200, backgroundColor: 'rgb(45, 173, 78)', borderColor: '#f0f0f0', borderTopWidth: 5, borderRightWidth: 5, borderLeftWidth: 5 }]} onPress={() => this.goback()}>
+                <TouchableOpacity style={[styles.button, { alignSelf: 'center', width: 200, backgroundColor: 'rgb(45, 173, 78)', borderColor: '#f0f0f0', borderTopWidth: 5, borderRightWidth: 5, borderLeftWidth: 5 }]} onPress={() => this.addProduct()}>
                             <Text style={[styles.loginText, { color: 'white' }]}>Add Product</Text>
                 </TouchableOpacity>
             </View>
         );
     }
 }
+
+const mapStateToProps= state => {
+	return {
+		user: state.user
+	}
+  }
+export default connect(mapStateToProps)(ManageProduct);
 

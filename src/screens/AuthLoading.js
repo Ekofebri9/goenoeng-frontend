@@ -44,7 +44,7 @@ export default class AuthLoading extends React.Component {
   _bootstrapAsync = async () => {
     // User.id = await AsyncStorage.getItem('userId');
     // User.avatar = await AsyncStorage.getItem('userAvatar');
-    this.props.navigation.navigate(await AsyncStorage.getItem('token') ? 'App' : 'App');
+    this.props.navigation.navigate(this.state.User ? 'App' : 'Auth');
   };
 
   render() {

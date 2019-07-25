@@ -1,24 +1,28 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TextInput, SafeAreaView, StatusBar, Alert, TouchableOpacity,BackHandler   } from 'react-native';
+import { Text, View, StyleSheet, TextInput, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { Picker, Form, Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { login } from '../public/redux/actions/user';
+// import console = require('console');
 
 
 class Login extends Component {
-	state = { 
-		email       : '',
-		password    : '',
-		level:'user',
+	state = {
+		email: '',
+		password: '',
+		level: 'user',
 	}
 
-	handleLogin = async() => {
-		const { email,password,level } = this.state;
-		this.props.dispatch( login( email,password,level )).then(()=> {
-			this.props.navigation.goBack()
-			this.props.navigation.navigate('App')
-		}, function (error) {
-			alert("Gagal Masuk. Yang Bener Kalo Masukin Password sama Email!");
+	handleLogin = async () => {
+		const { email, password, level } = this.state;
+		// const {navigation} = this.props.na
+		let navigator = ''
+
+		// console.log(navigator)
+		this.props.dispatch(login(email, password, level)).then(() =>{
+			this.props.user.user.level === 'partner' ? navigator = "ProfileUser" : navigator = "ProfileStore"
+			this.props.navigation.navigate(navigator)
+			// console.log(this.props.user.user.level)
 		}
 		)
 	}

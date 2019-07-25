@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { View, Text, Dimensions, ImageBackground, AsyncStorage, TouchableOpacity, ActivityIndicator } from 'react-native';
 import style from '../Assets/Style'
 import { connect } from 'react-redux'
-import { getUser } from '../public/redux/actions/user';
+import { fetchUser } from '../public/redux/actions/user';
+import { withNavigation } from 'react-navigation';
 
 const widthWindow = Dimensions.get('window').width
 class StoreProfile extends Component {
@@ -15,43 +16,41 @@ class StoreProfile extends Component {
             image: 'https://res.cloudinary.com/dvyonb6zt/image/upload/v1563542754/Product/ggirl_omijq3.png',
             error: ''
         };
-        this.checkLogin()
+        // this.checkLogin()
     }
 
-    checkLogin =async()=>{
-        console.warn('asy',await AsyncStorage.getItem('token'))
-        if ( !await AsyncStorage.getItem('token') ||await AsyncStorage.getItem('token') ==null ) {
-            this.props.navigation.navigate('Login')
-        }
-    }
+    // checkLogin =async()=>{
+    //     console.warn('asy',await AsyncStorage.getItem('token'))
+    //     if ( !await AsyncStorage.getItem('token') ||await AsyncStorage.getItem('token') ==null ) {
+    //         this.props.navigation.navigate('Login')
+    //     }
+    // }
 
-    componentWillMount=async()=>{
-        // if ( !AsyncStorage.getItem('userToken')) {
-        //     props.navigation.navigate('Login')
-        // }
-        // else{
-            // console.warn('token',await AsyncStorage.getItem('token'))
-            // BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-            let token = await AsyncStorage.getItem('token')
-            this.props.dispatch( getUser( token))
-            this.subs = [
-                this.props.navigation.addListener('willFocus',async()=>{
-                    // this.setState({loading: true})
-                    this.checkLogin()
-                    let token = await AsyncStorage.getItem('token')
-            this.props.dispatch( getUser( token))
+    // componentWillMount=async()=>{
+    //         let token = await AsyncStorage.getItem('token')
+    //         this.props.dispatch( getUser( token))
+    //         this.subs = [
+    //             this.props.navigation.addListener('willFocus',async()=>{
+    //                 // this.setState({loading: true})
+    //                 this.checkLogin()
+    //                 let token = await AsyncStorage.getItem('token')
+    //         this.props.dispatch( getUser( token))
             
-                }),
-            ]
-           
- 	    // }
-    }
+    //             }),
+    //         ]
+    // }
 
-    componentWillUnmount(){
-        // BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
-        this.subs.forEach(sub => {
-            sub.remove()
-        })
+    // componentWillUnmount(){
+    //     // BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
+    //     this.subs.forEach(sub => {
+    //         sub.remove()
+    //     })
+    // }
+
+    async componentDidMount(){
+        let token = await AsyncStorage.getItem('token')
+        // console.log(token)
+        this.props.dispatch(fetchUser(token))
     }
 
     onBackPress = () => {
@@ -67,7 +66,6 @@ class StoreProfile extends Component {
           { cancelable: false },
         );
      
-        // Return true to enable back button over ride.
         return true;
       }
 
@@ -76,34 +74,27 @@ class StoreProfile extends Component {
         navigation.goBack()
     }
     goEditProfil = () => {
-        this.props.navigation.navigate('EditProfileUser');
+        const { navigation } = this.props;
+        navigation.navigate('EditProfileUser');
     }
 
     _logOut = async () => {
-        // await firebase.database().ref('users/' + Users.id).update({
-        //     status: 'offline'
-        // })
         await AsyncStorage.clear();
-        // Users.email = null
-        // Users.name = null
-        // Users.id = null
-        // Users.status = null
-        // Users.role = null
         this.props.navigation.navigate('Auth');
     }
     render() {
         // console.warn(this.props.user);
-        
+        console.log(this.props.user)
         return (
             <View>
-                {
+                {/* {
                 (!this.props.user.user) ? 
                     <ActivityIndicator/>
                 :
-                <React.Fragment>
+                <React.Fragment> */}
                 <View style={style.backgroundUp}>
                     <View style={{ flexDirection: 'row' }}>
-                        <ImageBackground style={style.imageBox} source={{ uri: this.props.user.image_profil }} />
+                        <ImageBackground style={style.imageBox} source={{ uri: this.props.user.image }} />
                         <TouchableOpacity style={style.imageBox2} 
                              onPress={this._logOut}
                         >
@@ -129,24 +120,24 @@ class StoreProfile extends Component {
                         <View style={style.iconBox}>
                             <ImageBackground style={style.imageIcon} source={require('../Assets/Icons/gender.png')} />
                         </View>
-                        <Text style={style.textTop}></Text>
+                        <Text style={style.textTop}>{this.props.user.gender}</Text>
                     </View>
                     <View style={style.detailTextBox}>
                         <View style={[style.iconBox, { height: 70 }]}>
                             <ImageBackground style={style.imageIcon} source={require('../Assets/Icons/ig.png')} />
                             {/* </ImageBackground> */}
                         </View>
-                        <Text style={style.textTop}></Text>
+                        <Text style={style.textTop}>{this.props.user.user.address}</Text>
                     </View>
                     <TouchableOpacity 
                         style={[style.buttonAddProduct, {alignSelf: 'center'}]} 
-                        onPress={() => this.goback()}>
+                        onPress={() => this.goEditProfil()}>
                         <Text style={[style.loginText, { color: 'white' }]}>Edit</Text>
                     </TouchableOpacity>
 
                 </View>
-                </React.Fragment>
-                }
+                {/* </React.Fragment>
+                } */}
                 <View style={style.backgroundDown} />
             </View>
 
@@ -155,8 +146,8 @@ class StoreProfile extends Component {
 }
 const mapStateToProps= state => {
 	return {
-		user: state.user.user,
+		user: state.user,
 	}
   }
 
-export default connect(mapStateToProps)(StoreProfile);
+export default connect(mapStateToProps)(withNavigation(StoreProfile));
