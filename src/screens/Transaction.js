@@ -3,12 +3,10 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     Image,
     FlatList,
     TouchableOpacity,
 } from "react-native";
-import Moment from 'react-moment';
 import moment from 'moment'
 
 let total = 0
@@ -20,112 +18,19 @@ class Transaction extends Component {
         super(props)
         this.state = {
             total: 0,
-            lama: 7,
-            transaction: [
-                {
-                    id: '01',
-                    image: 'https://id-test-11.slatic.net/p/6/tas-gunung-carrier-consina-centurion-50l-8459-94124583-bfbb9a8ec8c523bfe88b948d03d32989-catalog.jpg_340x340q80.jpg_.webp',
-                    namaBarang: 'Carrier',
-                    qty: 5,
-                    hargaBarang: 300000,
-                    lama: 7,
-                },
-                {
-                    id: '02',
-                    image: 'https://id-test-11.slatic.net/p/6/spotec-rocky-sepatu-hikingsepatu-gunung-hitammerah-1510135991-78364345-df6e73d8db7ce1f76924fabc601a6521.jpg',
-                    namaBarang: 'Sepatu Gunung',
-                    qty: 6,
-                    hargaBarang: 200000,
-                    lama: 7,
-                },
-                {
-                    id: '03',
-                    image: 'https://ecs7.tokopedia.net/img/cache/700/product-1/2018/4/30/31724409/31724409_8bcfe6ea-eb79-4b3e-bf76-d761964f6002_672_672.jpg',
-                    namaBarang: 'Sleeping Bed',
-                    qty: 9,
-                    hargaBarang: '250000',
-                    lama: 7,
-                },
-                {
-                    id: '04',
-                    image: 'http://cdn.elevenia.co.id/g/3/5/4/2/9/8/20354298_B.jpg',
-                    namaBarang: 'Tenda',
-                    qty: 2,
-                    hargaBarang: '100000',
-                    lama: 7,
-                },
-                {
-                    id: '05',
-                    image: 'https://id-test-11.slatic.net/p/6/tas-gunung-carrier-consina-centurion-50l-8459-94124583-bfbb9a8ec8c523bfe88b948d03d32989-catalog.jpg_340x340q80.jpg_.webp',
-                    namaBarang: 'Carrier',
-                    qty: 5,
-                    hargaBarang: 300000,
-                    lama: 7,
-                },
-                {
-                    id: '06',
-                    image: 'https://id-test-11.slatic.net/p/6/spotec-rocky-sepatu-hikingsepatu-gunung-hitammerah-1510135991-78364345-df6e73d8db7ce1f76924fabc601a6521.jpg',
-                    namaBarang: 'Sepatu Gunung',
-                    qty: 6,
-                    hargaBarang: 200000,
-                    lama: 7,
-                },
-                {
-                    id: '07',
-                    image: 'https://ecs7.tokopedia.net/img/cache/700/product-1/2018/4/30/31724409/31724409_8bcfe6ea-eb79-4b3e-bf76-d761964f6002_672_672.jpg',
-                    namaBarang: 'Sleeping Bed',
-                    qty: 9,
-                    hargaBarang: '250000',
-                    lama: 7,
-                },
-                {
-                    id: '08',
-                    image: 'http://cdn.elevenia.co.id/g/3/5/4/2/9/8/20354298_B.jpg',
-                    namaBarang: 'Tenda',
-                    qty: 2,
-                    hargaBarang: '100000',
-                    lama: 7,
-                },
-                {
-                    id: '09',
-                    image: 'https://id-test-11.slatic.net/p/6/tas-gunung-carrier-consina-centurion-50l-8459-94124583-bfbb9a8ec8c523bfe88b948d03d32989-catalog.jpg_340x340q80.jpg_.webp',
-                    namaBarang: 'Carrier',
-                    qty: 5,
-                    hargaBarang: 300000,
-                    lama: 7,
-                },
-                {
-                    id: '10',
-                    image: 'https://id-test-11.slatic.net/p/6/spotec-rocky-sepatu-hikingsepatu-gunung-hitammerah-1510135991-78364345-df6e73d8db7ce1f76924fabc601a6521.jpg',
-                    namaBarang: 'Sepatu Gunung',
-                    qty: 6,
-                    hargaBarang: 200000,
-                    lama: 7,
-                },
-                {
-                    id: '11',
-                    image: 'https://ecs7.tokopedia.net/img/cache/700/product-1/2018/4/30/31724409/31724409_8bcfe6ea-eb79-4b3e-bf76-d761964f6002_672_672.jpg',
-                    namaBarang: 'Sleeping Bed',
-                    qty: 9,
-                    hargaBarang: '250000',
-                    lama: 7,
-                },
-                {
-                    id: '12',
-                    image: 'http://cdn.elevenia.co.id/g/3/5/4/2/9/8/20354298_B.jpg',
-                    namaBarang: 'Tenda',
-                    qty: 2,
-                    hargaBarang: '100000',
-                    lama: 7,
-                },
-            ]
+            lama: this.props.navigation.state.params.day,
+            transaction: this.props.navigation.state.params,
         }
     }
 
     componentWillMount() {
-        this.state.transaction.map((item) => {
-            total += parseInt(item.hargaBarang)
+        this.state.transaction.product.map((item) => {
+            total += parseInt(item.price * item.rent)
         })
+    }
+
+    componentWillUnmount() {
+        total = 0
     }
 
     priceFormat(number) {
@@ -154,21 +59,21 @@ class Transaction extends Component {
                     <Text style={styles.title}>Detail transaksi</Text>
                 </View>
                 <FlatList
-                    data={this.state.transaction}
+                    data={this.state.transaction.product}
                     keyExtractor={this.keyExtractor}
                     renderItem={({ item, total }) => {
                         return (
                             <View style={styles.flatList}>
                                 <Image
-                                    source={{ uri: item.image }}
+                                    source={{ uri: item.images_product[0] }}
                                     style={styles.image}
                                 />
                                 <View style={styles.containerText}>
                                     <View style={{ flexDirection: 'row' }}>
-                                        <Text style={{ fontSize: 17, color: '#ffffff', flex: 6}}>{item.namaBarang}</Text>
-                                        <Text style={{ fontSize: 17, color: '#ffffff', flex: 1}}>{item.qty}x</Text>
+                                        <Text style={{ fontSize: 17, color: '#ffffff', flex: 6}}>{item.name_product}</Text>
+                                        <Text style={{ fontSize: 17, color: '#ffffff', flex: 1}}>{item.rent}x</Text>
                                     </View>
-                                    <Text style={{ fontSize: 20, color: '#ffff00', }}>{this.priceFormat(item.hargaBarang)}</Text>
+                                    <Text style={{ fontSize: 20, color: '#ffff00', }}>{this.priceFormat(item.price * item.rent)}</Text>
                                     <Text style={{ fontSize: 15, color: '#ffffff', }}>Tanggal pinjam {dateNow}</Text>
                                     <Text style={{ fontSize: 15, color: '#ffffff', }}>Tanggal kembali {dateAgo}</Text>
                                 </View>

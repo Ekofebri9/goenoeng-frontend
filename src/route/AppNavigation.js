@@ -36,38 +36,38 @@ const BottomNavigation = createBottomTabNavigator(
     Profile: MidProfile,
   },
   {
-    defaultNavigationOptions: ({navigation}) => ({
-      tabBarIcon: ({focused, horizontal, tintColor}) => {
-        const {routeName} = navigation.state;
+    defaultNavigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused, horizontal, tintColor }) => {
+        const { routeName } = navigation.state;
         if (routeName === 'Home') {
           return (
             focused ?
               <Image style={styles.icon}
-                     source={require('../../src/Assets/Icons/Green_Home_100px.png')}/> :
-              <Image style={styles.icon} source={require('../../src/Assets/Icons/Home_100px.png')}/>
+                source={require('../../src/Assets/Icons/Green_Home_100px.png')} /> :
+              <Image style={styles.icon} source={require('../../src/Assets/Icons/Home_100px.png')} />
           );
-        }else if (routeName === 'History') {
+        } else if (routeName === 'History') {
           return (
             focused ?
               <Image style={styles.icon}
-                     source={require('../../src/Assets/Icons/Green_US_Dollar_100px.png')}/> :
-              <Image style={styles.icon} source={require('../../src/Assets/Icons/US_Dollar_100px.png')}/>
+                source={require('../../src/Assets/Icons/Green_US_Dollar_100px.png')} /> :
+              <Image style={styles.icon} source={require('../../src/Assets/Icons/US_Dollar_100px.png')} />
           );
-        }else if (routeName === 'Profile') {
+        } else if (routeName === 'Profile') {
           return (
             focused ?
               <Image style={styles.icon}
-                     source={require('../../src/Assets/Icons/Green_User_100px.png')}/> :
-              <Image style={styles.icon} source={require('../../src/Assets/Icons/User_100px.png')}/>
+                source={require('../../src/Assets/Icons/Green_User_100px.png')} /> :
+              <Image style={styles.icon} source={require('../../src/Assets/Icons/User_100px.png')} />
           );
         }
       },
       tabBarOptions: {
-          activeTintColor: '#34c759',
-          style: {
-              paddingVertical: 6,
-          },
-          keyboardHidesTabBar: true,
+        activeTintColor: '#34c759',
+        style: {
+          paddingVertical: 6,
+        },
+        keyboardHidesTabBar: true,
       }
     })
   }
@@ -151,10 +151,10 @@ const AppNavigator = createStackNavigator({
   MountainDetail: {
     screen: MountainDetail
   },
-  BookingMountain:{
+  BookingMountain: {
     screen: BookingMountain
   },
-  Chat:{
+  Chat: {
     screen: Chat
   }
 },
@@ -175,10 +175,10 @@ const RegisterStack = createStackNavigator({
   SignUp: {
     screen: SignUp
   },
-  User:{
+  User: {
     screen: User
   },
-  Mitra:{
+  Mitra: {
     screen: Mitra
   },
 });
@@ -197,8 +197,8 @@ export default createAppContainer(createSwitchNavigator(
 ));
 // export default createAppContainer(AppNavigator);
 const styles = StyleSheet.create({
-    icon: {
-        width: 25,
-        height: 25,
-    }
+  icon: {
+    width: 25,
+    height: 25,
+  }
 });

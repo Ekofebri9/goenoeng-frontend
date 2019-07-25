@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, Picker, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, Image, FlatList, Picker, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NumericInput from 'react-native-numeric-input';
 import Axios from 'axios';
@@ -15,19 +15,10 @@ class Store extends Component {
             address: '',
             desc: '',
             photo: '',
-            product: [
-                {
-                    _id: 3,
-                    name_product: '',
-                    price: 0,
-                    stock: 0,
-                    rent: 0,
-                    description: '',
-                    images_product: ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT23pWgykESLk4y9Gtx7nzj4CXZc2605bCHiqAvTHA8gE4RznDM'],
-                },
-            ],
+            product: [],
             duration: 0,
-            items: []
+            items: [],
+            isLoading: true,
         }
     }
     priceFormat(number) {
@@ -51,15 +42,16 @@ class Store extends Component {
     }
     rent = async () => {
         await this.setState({
-            items: this.state.product.filter(item => item.rent !== 0)
+            items: this.state.product.filter(item => item.rent > 0)
         })
         console.warn(this.state.items, this.state.duration)
         if (!this.props.user.isLogin) {
             this.props.navigation.navigate('Login')
         } else {
             if (this.state.items.length > 0 && this.state.duration > 0) {
+                console.warn(this.state.items.length)
                 let rent = { product: this.state.items, day: this.state.duration }
-                this.props.navigation.navigate('Transaksi', rent)
+                this.props.navigation.navigate('Transaction', rent)
             } else {
                 let message
                 if (this.state.items.length === 0) {
@@ -71,8 +63,9 @@ class Store extends Component {
             }
         }
     }
-    componentDidMount() {
-        Axios.get('https://menung.herokuapp.com/partners/partner/'+this.state.idStore, { headers: { 'x-app-name': 'menung982998372771' } })
+    async componentDidMount() {
+        this.setState({ isLoading: true })
+        await Axios.get('https://menung.herokuapp.com/partners/partner/' + this.state.idStore, { headers: { 'x-app-name': 'menung982998372771' } })
             .then(data => {
                 //console.warn(data.data.data)
                 this.setState({
@@ -85,11 +78,12 @@ class Store extends Component {
                     product: data.data.data.products
                 })
             })
+        this.setState({ isLoading: false })
     }
     render() {
         return (
             <View style={{ flex: 1, }}>
-                <HeaderBack title={'Toko'} navigation={this.props.navigation}/>
+                <HeaderBack title={'Toko'} navigation={this.props.navigation} />
                 <View style={{ flex: 2, flexDirection: 'row', margin: 10, borderColor: 'black', borderWidth: 2, borderRadius: 10 }}>
                     <Image source={{ uri: this.state.photo }} style={{ height: 100, width: 100, margin: 10, borderRadius: 10 }} />
                     <View style={{ padding: 10, flex: 1 }}>
@@ -144,23 +138,36 @@ class Store extends Component {
                         </View>
                     </View>
                     <View style={{ flex: 6, borderTopColor: 'black', borderTopWidth: 2 }}>
-                        <FlatList
-                            data={this.state.product}
-                            renderItem={({ item }) => {
-                                return (
-                                    <View style={{ flexDirection: 'row', margin: 10, backgroundColor: '#34c759', borderRadius: 10 }}>
-                                        <Image source={{ uri: item.images_product[0] }} style={{ height: 100, width: 100, margin: 10, borderRadius: 10 }} />
-                                        <View style={{ padding: 5, flex: 1 }}>
-                                            <View style={{ flexDirection: 'row' }}>
-                                                <View style={{ flex: 2 }}>
-                                                    <Text style={{ color: 'white' }}>Nama Item</Text>
-                                                    <Text style={{ color: 'white' }}>Harga Sewa</Text>
-                                                    <Text style={{ color: 'white' }}>Ketersediaan</Text>
+                        {this.state.isLoading ? <ActivityIndicator size="large" color="blue" /> :
+                            <FlatList
+                                data={this.state.product}
+                                renderItem={({ item }) => {
+                                    return (
+                                        <View style={{ flexDirection: 'row', margin: 10, backgroundColor: '#34c759', borderRadius: 10 }}>
+                                            <Image source={{ uri: item.images_product[0] }} style={{ height: 100, width: 100, margin: 10, borderRadius: 10 }} />
+                                            <View style={{ padding: 5, flex: 1 }}>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <View style={{ flex: 2 }}>
+                                                        <Text style={{ color: 'white' }}>Nama Item</Text>
+                                                        <Text style={{ color: 'white' }}>Harga Sewa</Text>
+                                                        <Text style={{ color: 'white' }}>Ketersediaan</Text>
+                                                    </View>
+                                                    <View style={{ flex: 3 }}>
+                                                        <Text style={{ color: 'white' }} numberOfLines={1}>: {item.name_product}</Text>
+                                                        <Text style={{ color: 'white' }}>: {this.priceFormat(item.price)}</Text>
+                                                        <Text style={{ color: 'white' }}>: {item.stok}</Text>
+                                                    </View>
                                                 </View>
-                                                <View style={{ flex: 3 }}>
-                                                    <Text style={{ color: 'white' }} numberOfLines={1}>: {item.name_product}</Text>
-                                                    <Text style={{ color: 'white' }}>: {this.priceFormat(item.price)}</Text>
-                                                    <Text style={{ color: 'white' }}>: {item.stok}</Text>
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <NumericInput
+                                                        value={item.stok - item.stok}
+                                                        maxValue={item.stok}
+                                                        minValue={1}
+                                                        onChange={value => this.rentCount(item._id, value)} />
+                                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('DetailProduct', item)}
+                                                        style={{ backgroundColor: 'white', margin: 10, borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                                        <Text style={{ fontSize: 12, padding: 5 }}>Detail</Text>
+                                                    </TouchableOpacity>
                                                 </View>
                                             </View>
                                             <View style={{ flexDirection: 'row' }}>
@@ -175,11 +182,11 @@ class Store extends Component {
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
-                                    </View>
-                                )
-                            }}
-                            keyExtractor={(item, index) => index.toString()}
-                        />
+                                    )
+                                }}
+                                keyExtractor={(item, index) => index.toString()}
+                            />
+                        }
                     </View>
                     <View style={{ flex: 1, borderTopColor: 'black', borderTopWidth: 2, backgroundColor: 'white' }}>
                         <TouchableOpacity onPress={this.rent}
